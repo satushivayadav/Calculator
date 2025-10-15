@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced Calculator — Color Edition</title>
+
+  <!-- Download Bootstrap locally and place as below -->
+  <link href="bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    :root{
+      /* Core colors */
+      --bg1:#0b1020;
+      --bg2:#0e1530;
+      --bg3:#101936;
+      --glass:#0b1220;
+      --text:#f5f7fb;
+      --muted:#c7cbe0;
+
+      /* Category hues */
+      --mem1:#06b6d4; /* cyan */
+      --mem2:#2563eb; /* blue */
+      --func1:#6366f1; /* indigo */
+      --func2:#7c3aed; /* violet */
+      --funcAlt1:#14b8a6; /* teal */
+      --funcAlt2:#10b981; /* emerald */
+      --op1:#f59e0b; /* amber */
+      --op2:#f97316; /* orange */
+      --const1:#fbbf24; /* amber bright */
+      --const2:#f59e0b; /* amber */
+      --num1:#1f2937; /* slate-800 */
+      --num2:#0f172a; /* slate-900 */
+      --danger1:#ef4444; /* red */
+      --danger2:#f43f5e; /* rose */
+      --equal1:#ec4899; /* fuchsia */
+      --equal2:#8b5cf6; /* violet */
+
+      /* Effects */
+      --ring:#a5b4fc;
+      --shadow: 0 10px 30px rgba(0,0,0,0.45);
+      --inner: inset 0 0 0 1px rgba(255,255,255,0.06);
+    }
+
+    /* Neon gradient background */
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% -10%, #162142, transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, #1e1148, transparent 45%),
+        linear-gradient(160deg, var(--bg1), var(--bg2) 40%, var(--bg3) 100%);
+    }
+
+    .calc{
+      width:100%;
+      max-width:460px;
+      padding:16px;
+      border-radius:18px;
+      background: linear-gradient(180deg, #0b1220, #0b0f1e 60%, #0a0d1a);
+      box-shadow: var(--shadow), var(--inner);
+    }
+
+    .screen{
+      background: var(--glass);
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,0.08);
+      padding:12px 14px;
+      margin-bottom:14px;
+      min-height:104px;
+      box-shadow: inset 0 0 18px rgba(0,0,0,0.35);
+    }
+    .history{
+      color:var(--muted);
+      font-size:0.9rem;
+      min-height:22px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .display{
+      width:100%;
+      background:transparent;
+      border:0; outline:none;
+      color:var(--text);
+      font-size:2rem;
+      font-weight:700;
+      text-align:right;
+    }
+
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .toggle{
+      background: linear-gradient(180deg, #172032, #0f172a);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:10px;
+      color:var(--text);
+      padding:6px 10px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .badge-mode{
+      font-size:0.75rem;
+      padding:0.25rem 0.5rem;
+      background: rgba(99,102,241,0.18);
+      border:1px solid rgba(99,102,241,0.35);
+      border-radius:999px;
+      margin-left:8px;
+    }
+
+    .keypad{
+      display:grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap:10px;
+    }
+
+    /* Generic key base */
+    .btn-key{
+      border-radius:12px;
+      color:#fff;
+      font-weight:800;
+      padding:12px 0;
+      border:1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+      user-select:none;
+      transition: transform .06s ease, filter .25s ease, box-shadow .25s ease;
+    }
+    .btn-key:hover{ filter: brightness(1.06); }
+    .btn-key:active{ transform: translateY(1px) scale(0.99); }
+    .btn-key:focus-visible{
+      outline: 3px solid var(--ring);
+      outline-offset: 2px;
+    }
+
+    /* Category styles */
+    .btn-mem{
+      background: linear-gradient(145deg, var(--mem1), var(--mem2));
+      box-shadow: 0 8px 24px rgba(37,99,235,0.35);
+    }
+    .btn-func{
+      background: linear-gradient(145deg, var(--func1), var(--func2));
+      box-shadow: 0 8px 24px rgba(124,58,237,0.35);
+    }
+    .btn-func-alt{
+      background: linear-gradient(145deg, var(--funcAlt1), var(--funcAlt2));
+      box-shadow: 0 8px 24px rgba(20,184,166,0.35);
+    }
+    .btn-op{
+      background: linear-gradient(145deg, var(--op1), var(--op2));
+      color:#0b0f1e;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+      box-shadow: 0 8px 24px rgba(249,115,22,0.35);
+    }
+    .btn-const{
+      background: linear-gradient(145deg, var(--const1), var(--const2));
+      color:#0b0f1e;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+      box-shadow: 0 8px 24px rgba(245,158,11,0.35);
+    }
+    .btn-num{
+      background: linear-gradient(145deg, var(--num1), var(--num2));
+      border:1px solid rgba(148,163,184,0.15);
+    }
+    .btn-danger{
+      background: linear-gradient(145deg, var(--danger1), var(--danger2));
+      box-shadow: 0 8px 24px rgba(244,63,94,0.35);
+    }
+    .btn-equals{
+      background: linear-gradient(145deg, var(--equal1), var(--equal2));
+      box-shadow: 0 12px 30px rgba(139,92,246,0.5), 0 0 18px rgba(236,72,153,0.4);
+      border:1px solid rgba(255,255,255,0.18);
+    }
+
+    .span-2{ grid-column: span 2; }
+    .span-3{ grid-column: span 3; }
+  </style>
+</head>
+<body>
+  <main class="calc">
+    <div class="topbar">
+      <div class="fw-bold">CALCULATOR</div>
+      <div>
+        <button id="modeToggle" class="toggle" type="button" aria-label="Toggle Degree Radian">Deg</button>
+        <span id="modeBadge" class="badge-mode">Degrees</span>
+      </div>
+    </div>
+
+    <section class="screen">
+      <div id="history" class="history" aria-live="polite"></div>
+      <input id="display" class="display" type="text" inputmode="decimal"
+             autocomplete="off" spellcheck="false" aria-label="Calculator display" />
+    </section>
+
+    <section class="keypad">
+      <!-- Memory row -->
+      <button class="btn-key btn-mem" data-action="MC">MC</button>
+      <button class="btn-key btn-mem" data-action="MR">MR</button>
+      <button class="btn-key btn-mem" data-action="MPLUS">M+</button>
+      <button class="btn-key btn-mem" data-action="MMINUS">M−</button>
+      <button class="btn-key btn-danger" data-action="CE">CE</button>
+      <button class="btn-key btn-danger" data-action="C">C</button>
+
+      <!-- Functions row -->
+      <button class="btn-key btn-func" data-insert="(">(</button>
+      <button class="btn-key btn-func" data-insert=")">)</button>
+      <button class="btn-key btn-op" data-insert="%">%</button>
+      <button class="btn-key btn-func" data-action="INV">x⁻¹</button>
+      <button class="btn-key btn-func" data-action="SQR">x²</button>
+      <button class="btn-key btn-func" data-insert="^">xʸ</button>
+
+      <!-- Trig / logs -->
+      <button class="btn-key btn-func" data-fn="sin">sin</button>
+      <button class="btn-key btn-func" data-fn="cos">cos</button>
+      <button class="btn-key btn-func" data-fn="tan">tan</button>
+      <button class="btn-key btn-func" data-fn="asin">asin</button>
+      <button class="btn-key btn-func" data-fn="acos">acos</button>
+      <button class="btn-key btn-func" data-fn="atan">atan</button>
+
+      <button class="btn-key btn-func-alt" data-fn="sqrt">√</button>
+      <button class="btn-key btn-func-alt" data-fn="ln">ln</button>
+      <button class="btn-key btn-func-alt" data-fn="log">log</button>
+      <button class="btn-key btn-func-alt" data-insert="|">|x|</button>
+      <button class="btn-key btn-func-alt" data-insert="!">n!</button>
+      <button class="btn-key btn-func-alt" data-action="SIGN">±</button>
+
+      <!-- Constants and operators -->
+      <button class="btn-key btn-const" data-insert="π">π</button>
+      <button class="btn-key btn-const" data-insert="e">e</button>
+      <button class="btn-key btn-op" data-insert="/">÷</button>
+      <button class="btn-key btn-op" data-insert="*">×</button>
+      <button class="btn-key btn-op" data-insert="-">−</button>
+      <button class="btn-key btn-op" data-insert="+">+</button>
+
+      <!-- Digits -->
+      <button class="btn-key btn-num" data-insert="7">7</button>
+      <button class="btn-key btn-num" data-insert="8">8</button>
+      <button class="btn-key btn-num" data-insert="9">9</button>
+      <button class="btn-key btn-danger" data-action="DEL">DEL</button>
+      <button class="btn-key btn-equals span-2" data-action="EVAL">=</button>
+
+      <button class="btn-key btn-num" data-insert="4">4</button>
+      <button class="btn-key btn-num" data-insert="5">5</button>
+      <button class="btn-key btn-num" data-insert="6">6</button>
+      <button class="btn-key btn-num span-3" data-insert=" "> </button>
+
+      <button class="btn-key btn-num" data-insert="1">1</button>
+      <button class="btn-key btn-num" data-insert="2">2</button>
+      <button class="btn-key btn-num" data-insert="3">3</button>
+      <button class="btn-key btn-num span-3" data-insert=" "> </button>
+
+      <button class="btn-key btn-num span-2" data-insert="0">0</button>
+      <button class="btn-key btn-num" data-insert=".">.</button>
+      <button class="btn-key btn-num span-3" data-insert=" "> </button>
+    </section>
+  </main>
+
+  <script src="bootstrap.bundle.min.js"></script>
+  <script>
+    // State
+    const display = document.getElementById('display');
+    const historyEl = document.getElementById('history');
+    const modeToggle = document.getElementById('modeToggle');
+    const modeBadge = document.getElementById('modeBadge');
+    let isDegrees = true;
+    let memoryVal = 0;
+
+    // Utilities
+    const toRad = x => x * Math.PI / 180;
+    const toDeg = x => x * 180 / Math.PI;
+
+    function factorial(n) {
+      if (!Number.isFinite(n) || n < 0) throw new Error('Invalid factorial');
+      if (Math.floor(n) !== n) throw new Error('Factorial of non-integer');
+      let r = 1;
+      for (let i = 2; i <= n; i++) r *= i;
+      return r;
+    }
+
+    function sanitizeAndBuild(exprRaw) {
+      let expr = exprRaw.replace(/π/g, 'Math.PI')
+                        .replace(/\be\b/g, 'Math.E')
+                        .replace(/×/g, '*')
+                        .replace(/÷/g, '/')
+                        .replace(/\^/g, '**');
+
+      // |x|
+      expr = expr.replace(/\|([^|]+)\|/g, 'Math.abs($1)');
+
+      // Factorial
+      expr = expr.replace(/(\d+(\.\d+)?)!/g, 'factorial($1)');
+      expr = expr.replace(/\(([^()]+)\)!/g, 'factorial(($1))');
+
+      // Percent
+      expr = expr.replace(/(\d+(\.\d+)?)%/g, '($1/100)');
+
+      // Trig, degree/radian
+      const wrap = a => isDegrees ? `toRad(${a})` : `${a}`;
+      expr = expr.replace(/\bsin\(([^)]+)\)/g, (_, a) => `Math.sin(${wrap(a)})`);
+      expr = expr.replace(/\bcos\(([^)]+)\)/g, (_, a) => `Math.cos(${wrap(a)})`);
+      expr = expr.replace(/\btan\(([^)]+)\)/g, (_, a) => `Math.tan(${wrap(a)})`);
+
+      const inv = fn => isDegrees ? `toDeg(Math.${fn}($1))` : `Math.${fn}($1)`;
+      expr = expr.replace(/\basin\(([^)]+)\)/g, inv('asin'));
+      expr = expr.replace(/\bacos\(([^)]+)\)/g, inv('acos'));
+      expr = expr.replace(/\batisan\(([^)]+)\)/g, inv('atan')); // safety
+      expr = expr.replace(/\batan\(([^)]+)\)/g, inv('atan'));
+
+      // Logs / roots
+      expr = expr.replace(/\bln\(([^)]+)\)/g, 'Math.log($1)');
+      expr = expr.replace(/\blog\(([^)]+)\)/g, 'Math.log10($1)');
+      expr = expr.replace(/\bsqrt\(([^)]+)\)/g, 'Math.sqrt($1)');
+
+      // Safety
+      if (/[^0-9+\-*/().,%!^\sA-Za-z_]|__|new|this|window|document/.test(expr)) {
+        throw new Error('Invalid input');
+      }
+      return expr;
+    }
+
+    function evaluate() {
+      const input = display.value.trim();
+      if (!input) return;
+      historyEl.textContent = input + ' =';
+      try {
+        const expr = sanitizeAndBuild(input);
+        const result = Function('toRad','toDeg','factorial', `return (${expr})`)(toRad,toDeg,factorial);
+        display.value = Number.isFinite(result) ? String(result) : 'Error';
+      } catch {
+        display.value = 'Error';
+      }
+      display.focus();
+    }
+
+    function append(s) {
+      const start = display.selectionStart, end = display.selectionEnd;
+      const val = display.value;
+      display.value = val.slice(0, start) + s + val.slice(end);
+      const pos = start + s.length;
+      display.setSelectionRange(pos, pos);
+      display.focus();
+    }
+    function insertToken(t) {
+      if (t === ' ') return;
+      if (['sin','cos','tan','asin','acos','atan','sqrt','ln','log'].includes(t)) {
+        append(`${t}(`); return;
+      }
+      if (t === '|') { append('|'); return; }
+      append(t);
+    }
+
+    function doAction(action) {
+      const val = display.value;
+      switch (action) {
+        case 'DEL': {
+          const start = display.selectionStart, end = display.selectionEnd;
+          if (start !== end) {
+            display.value = val.slice(0, start) + val.slice(end);
+            display.setSelectionRange(start, start);
+          } else {
+            const pos = Math.max(0, start - 1);
+            display.value = val.slice(0, pos) + val.slice(start);
+            display.setSelectionRange(pos, pos);
+          }
+          break;
+        }
+        case 'C': display.value = ''; historyEl.textContent = ''; break;
+        case 'CE': display.value = ''; break;
+        case 'EVAL': evaluate(); break;
+        case 'SIGN': display.value = val ? `-(${val})` : '-'; break;
+        case 'INV': if (val) display.value = `1/(${val})`; break;
+        case 'SQR': if (val) display.value = `(${val})^2`; break;
+        case 'MC': memoryVal = 0; break;
+        case 'MR': insertToken(String(memoryVal)); break;
+        case 'MPLUS': {
+          const x = parseFloat(val);
+          if (!Number.isNaN(x)) memoryVal += x;
+          break;
+        }
+        case 'MMINUS': {
+          const x = parseFloat(val);
+          if (!Number.isNaN(x)) memoryVal -= x;
+          break;
+        }
+      }
+      display.focus();
+    }
+
+    // Degree/Radian toggle
+    modeToggle.addEventListener('click', () => {
+      isDegrees = !isDegrees;
+      modeToggle.textContent = isDegrees ? 'Deg' : 'Rad';
+      modeBadge.textContent = isDegrees ? 'Degrees' : 'Radians';
+      display.focus();
+    });
+
+    // Click handlers
+    document.querySelectorAll('.btn-key').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fn = btn.getAttribute('data-fn');
+        const ins = btn.getAttribute('data-insert');
+        const act = btn.getAttribute('data-action');
+        if (fn) insertToken(fn);
+        else if (ins !== null) insertToken(ins);
+        else if (act) doAction(act);
+      });
+    });
+
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+      const k = e.key;
+      if ((k >= '0' && k <= '9') || ['+','-','*','/','%','.', '(',')','^'].includes(k)) {
+        insertToken(k); e.preventDefault(); return;
+      }
+      if (k === 'Enter' || k === '=') { evaluate(); e.preventDefault(); return; }
+      if (k === 'Backspace') { doAction('DEL'); e.preventDefault(); return; }
+      if (k === 'Escape') { doAction('C'); e.preventDefault(); return; }
+    });
+
+    // Initialize
+    display.value = '';
+    display.focus();
+  </script>
+</body>
+</html>
