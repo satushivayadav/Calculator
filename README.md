@@ -14,4 +14,6 @@ Button presses or key depressions add characters to the screen, and invoking the
 Extensions you can add
 Scientific and utility functions such as power, square, and square root can be supplemented with special buttons and handlers to go beyond four-function mathematics. Alterations such as tip or percentage calculators can share the same HTML/CSS shell with minimal logic changes for specialized calculations.
 
+
+<img width="631" height="857" alt="Screenshot 2025-10-15 210832" src="https://github.com/user-attachments/assets/37684929-8ee1-444c-9913-1ad7af1664f2" />
 <img width="625" height="866" alt="Screenshot 2025-10-15 210855" src="https://github.com/user-attachments/assets/274d993d-fdb0-4db5-b97a-03b7ee3b32da" />
